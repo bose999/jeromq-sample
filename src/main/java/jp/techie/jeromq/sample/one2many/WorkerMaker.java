@@ -93,9 +93,22 @@ public class WorkerMaker {
 					
 					while (result > 0) {
 						result = inputStream.read(sendBytes);
-						byte[] sendMessageBytes = msgpack.write(sendBytes);
-						responder.send(sendMessageBytes, ZMQ.SNDMORE);
-						System.out.println("sendmore");
+						if(result != -1){
+							if(outputByesLength != result){
+								// 切り出した桁数が少ない場合に切り出した桁数で入れ替える
+								// MessagePackがnewした桁数で転送するので暫定対応
+								byte[] sendBytesEdit = new byte[result];
+								for(int i=0;i<result ;i++){
+									sendBytesEdit[i] = sendBytes[i];
+								}
+								byte[] sendMessageBytes = msgpack.write(sendBytesEdit);
+								responder.send(sendMessageBytes, ZMQ.SNDMORE);
+							} else {
+								byte[] sendMessageBytes = msgpack.write(sendBytes);
+								responder.send(sendMessageBytes, ZMQ.SNDMORE);
+							}
+							System.out.println("sendmore");
+						}
 						System.out.println(result);
 					}
 					NilValue nilValue = ValueFactory.createNilValue();

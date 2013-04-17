@@ -45,7 +45,7 @@ public class ClientMaker {
 				sendStringBytes = msgpack.write(sendString);
 				request.send(sendStringBytes);
 				long endTime = System.nanoTime();
-				String outputFilePath = "/Users/matakeda/Desktop/001-01.jpg";
+				String outputFilePath = "/Users/matakeda/Desktop/001-" + i + ".jpg";
 				FileSystem fileSystem = FileSystems.getDefault();
 				Path path = fileSystem.getPath(outputFilePath);
 				OutputStream outputStream = Files.newOutputStream(path, CREATE, APPEND);
@@ -59,8 +59,6 @@ public class ClientMaker {
 						System.out.println(request.getEvents());
 						// MessagePackで返答を文字列にデシリアライズ
 						byte[] replyBytes = request.recv();
-						System.out.println(replyBytes);
-						
 						Value valueReply = msgpack.read(replyBytes, Value.class);
 						if (valueReply == null || valueReply.isNilValue()) {
 							outputStream.close();
@@ -68,6 +66,7 @@ public class ClientMaker {
 						} else {
 							RawValue rawValue = (RawValue) valueReply;
 							byte[] fileBytes = rawValue.getByteArray();
+							System.out.println(fileBytes.length);
 							outputStream.write(fileBytes);
 							System.out.println("write");
 						}
@@ -75,7 +74,6 @@ public class ClientMaker {
 						System.out.println("Received reply ( requestAddress:" + requestAddress + ") forCount:" + i
 								+ " [" + "reply" + "] " + executeTime + "ns");
 					}
-					
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
